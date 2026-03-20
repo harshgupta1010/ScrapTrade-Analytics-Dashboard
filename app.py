@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import gspread
 from google.oauth2.service_account import Credentials
 import json
+import os
 
 st.set_page_config(page_title="ScrapTrade Analytics Dashboard", layout="wide")
 
@@ -17,7 +18,13 @@ SHEET_NAME = "ScrapTrade_Database"
 
 @st.cache_resource
 def get_client():
-    creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPE)
+    if os.path.exists("credentials.json"):
+        creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPE)
+    else:
+        creds = Credentials.from_service_account_info(
+            dict(st.secrets["gcp_service_account"]),
+            scopes=SCOPE
+        )
     return gspread.authorize(creds)
 
 def get_users_sheet():
